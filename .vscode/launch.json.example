@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "go",
+      "type": "go",
+      "request": "attach",
+      "mode": "remote",
+      "port": 2345,
+      "host": "192.168.1.236",
+      "trace": "verbose"
+    },
+    {
+      "name": "node",
+      "type": "node",
+      "protocol": "inspector",
+      "request": "attach",
+      "stopOnEntry": false,
+      "address": "192.168.1.236",
+      "port": 2345,
+      "trace": true,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "/usr/src/app/"
+    }
+  ]
+}

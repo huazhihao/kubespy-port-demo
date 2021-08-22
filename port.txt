@@ -1,0 +1,33 @@
+$ kubectl run --image kubespy-port-demo --port=8000 --restart=Never mypod --dry-run=client -o yaml > kubespy-port-demo.yaml
+# +imagePullPolicy: Never
+
+$ kubectl apply -f kubespy-port-demo.yaml
+$ kubectl expose pod mypod --port=8000 --name=mypod
+$ kubectl get svc
+NAME    TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+mypod   ClusterIP   10.111.9.130   <none>        8000/TCP   9s
+
+$ curl http://10.111.9.130:8000
+{"message":"hello"}
+
+$ ./kubespy --spy-image golang mypod
+loading spy pod spy-7bdaf6b74933 ...
+If you don't see a command prompt, try pressing enter.
+
+# ps aux
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.0  0.3 708144  7012 ?        Ssl  03:29   0:00 /go/bin/kubespy-port-demo
+root        11  0.4  0.0   2416   576 pts/0    Ss   03:34   0:00 /bin/sh
+root        18  0.0  0.1   6696  2892 pts/0    R+   03:34   0:00 ps aux
+
+# go install github.com/go-delve/delve/cmd/dlv@latest
+
+## in this case, ptrace is required on node
+## echo 0 > /proc/sys/kernel/yama/ptrace_scope
+
+# dlv --listen=:2345 --headless=true --log=true --log-output=debugger,debuglineerr,gdbwire,lldbout,rpc --api-version=2 --accept-multiclient attach 1 &>> dlv.log &
+
+$ kubectl port-forward --address 0.0.0.0 spy-7bdaf6b74933 2345
+Forwarding from 0.0.0.0:2345 -> 2345
+
+
